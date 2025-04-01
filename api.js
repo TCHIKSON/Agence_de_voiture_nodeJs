@@ -1,14 +1,21 @@
 import express from 'express';
+import methodOverride from 'method-override';
 import { Sequelize, DataTypes } from 'sequelize';
+import path from 'path';
+import { fileURLToPath } from 'url'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const sequelize = new Sequelize('gestion_agence', 'root', 'root', {
+
+
+
+const sequelize = new Sequelize('gestion_agence', 'root', '', {
     host: 'localhost',
     dialect: 'mysql',
     logging: console.log,
 });
 
 
-const Agence = sequelize.define('Agence', {
+const Agence = sequelize.define('Agences', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     nom: { type: DataTypes.STRING, allowNull: false },
     adresse: { type: DataTypes.STRING, allowNull: false },
@@ -16,7 +23,7 @@ const Agence = sequelize.define('Agence', {
     email: { type: DataTypes.STRING, allowNull: false }
 });
 
-export const Vehicule = sequelize.define('Vehicule', {
+export const Vehicule = sequelize.define('Vehicules', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -62,21 +69,44 @@ sequelize.sync();
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+
 
 app.post('/agences', async (req, res) => {
-    const agence = await Agence.create(req.body);
-    res.json(agence);
+    await Agence.create(req.body);
+    res.redirect('/');
+    
 });
 
-app.get('/agences', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
-        const agences = await Agence.findAll();
-        res.json(agences);
+        const agences = await Agence.findAll({ include: Vehicule });
+        res.render('index', { agences });
     } catch (error) {
         console.error("Erreur lors de la récupération des agences :", error);
         res.status(500).json({ message: "Erreur interne du serveur", error });
     }
 });
+app.get("/agences/:id", async (req, res) => {
+    try {
+      const agence = await Agence.findByPk(req.params.id);
+  
+      if (agence) {
+        res.json(agence);
+      } else {
+        res.status(404).json({ message: "Agence non trouvée" });
+      }
+  
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'agence :", error);
+      res.status(500).json({ message: "Erreur interne du serveur", error });
+    }
+  });
+  
 
 
 app.put('/agences/:id', async (req, res) => {
@@ -86,7 +116,7 @@ app.put('/agences/:id', async (req, res) => {
 
 app.delete('/agences/:id', async (req, res) => {
     await Agence.destroy({ where: { id: req.params.id } });
-    res.json({ message: 'Agence supprimée' });
+    res.redirect('/');
 });
 
 app.get('/vehicles', async (req, res) => {
@@ -100,8 +130,8 @@ app.get('/vehicles', async (req, res) => {
 });
 
 app.post('/vehicules', async (req, res) => {
-    const vehicule = await Vehicule.create(req.body);
-    res.json(vehicule);
+    await Vehicule.create(req.body);
+    res.redirect('/');
 });
 
 app.get('/agences/:agenceId/vehicules', async (req, res) => {
@@ -116,7 +146,7 @@ app.put('/vehicules/:id', async (req, res) => {
 
 app.delete('/vehicules/:id', async (req, res) => {
     await Vehicule.destroy({ where: { id: req.params.id } });
-    res.json({ message: 'Véhicule supprimé' });
+    res.redirect('/');
 });
 
 app.listen(3000, () => {

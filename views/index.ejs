@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion Agences & Véhicules</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    .card { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem; border-radius: 6px; }
+    h2, h3 { margin-top: 0; }
+    form { margin-top: 1rem; }
+    input, select { display: block; margin: 0.3rem 0; padding: 0.4rem; width: 100%; max-width: 300px; }
+    button { padding: 0.4rem 1rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Ajouter une nouvelle agence</h1>
+  <form action="/agences" method="POST">
+    <input type="text" name="nom" placeholder="Nom" required>
+    <input type="text" name="adresse" placeholder="Adresse" required>
+    <input type="text" name="telephone" placeholder="Téléphone" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <button type="submit">Ajouter l'agence</button>
+  </form>
+
+  <hr>
+
+  <h1>Liste des agences</h1>
+
+  <% agences.forEach(agence => { %>
+    <div class="card">
+      <!-- Supprimer l'agence -->
+      <form action="/agences/<%= agence.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Supprimer cette agence ?');">
+        <button type="submit">🗑 Supprimer l'agence</button>
+      </form>
+      <br>
+      <h2><%= agence.nom %></h2>
+      <p><strong>Adresse :</strong> <%= agence.adresse %></p>
+      <p><strong>Téléphone :</strong> <%= agence.telephone %></p>
+      <p><strong>Email :</strong> <%= agence.email %></p>
+
+
+      <h3>Véhicules :</h3>
+      <% if (agence.Vehicules.length > 0) { %>
+        <ul>
+          <% agence.Vehicules.forEach(v => { %>
+            <li>
+              🚗 <%= v.marque %> <%= v.modele %> - <%= v.immatriculation %> (<%= v.statut %>) - <%= v.prix_par_jour %> €/jour
+
+              <!-- Supprimer le véhicule -->
+              <form action="/vehicules/<%= v.id %>?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce véhicule ?');">
+                <button type="submit">❌</button>
+              </form>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p>Aucun véhicule enregistré.</p>
+      <% } %>
+
+      <!-- Ajouter un véhicule -->
+      <form action="/vehicules" method="POST">
+        <h4>Ajouter un véhicule</h4>
+        <input type="hidden" name="agenceId" value="<%= agence.id %>">
+        <input type="text" name="marque" placeholder="Marque" required>
+        <input type="text" name="modele" placeholder="Modèle" required>
+        <input type="text" name="immatriculation" placeholder="Immatriculation" required>
+        <input type="number" name="annee" placeholder="Année" required>
+        <input type="number" name="prix_par_jour" placeholder="Prix par jour (€)" step="0.01" required>
+        <select name="statut" required>
+          <option value="disponible">Disponible</option>
+          <option value="loué">Loué</option>
+          <option value="en réparation">En réparation</option>
+        </select>
+        <button type="submit">Ajouter le véhicule</button>
+      </form>
+    </div>
+  <% }) %>
+
+</body>
+</html>
