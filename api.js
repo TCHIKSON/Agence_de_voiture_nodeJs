@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 
 
-const sequelize = new Sequelize('gestion_agence', 'root', 'root', {
+const sequelize = new Sequelize('gestion_agence', 'root', '', {
     host: 'localhost',
     dialect: 'mysql',
     logging: console.log,
@@ -82,7 +82,7 @@ app.post('/agences', async (req, res) => {
     
 });
 
-app.get('/agences', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         const agences = await Agence.findAll({ include: Vehicule });
         res.render('index', { agences });
@@ -114,7 +114,8 @@ app.get("/agences/:id", async (req, res) => {
     const [updated] = await Agence.update(req.body, { where: { id: req.params.id } });
 
     if (updated) {
-        res.json({ message: "Agence mise à jour avec succès" });
+        res.redirect('/')
+        //res.json({ message: "Agence mise à jour avec succès" });
     } else {
         res.status(400).json({ message: "Mise à jour échouée" });
     }
