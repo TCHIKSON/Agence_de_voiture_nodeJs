@@ -8,14 +8,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 
 
-const sequelize = new Sequelize('gestion_agence', 'root', '', {
+const sequelize = new Sequelize('gestion_agence', 'root', 'root', {
     host: 'localhost',
     dialect: 'mysql',
     logging: console.log,
 });
 
 
-const Agence = sequelize.define('Agences', {
+const Agence = sequelize.define('Agence', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     nom: { type: DataTypes.STRING, allowNull: false },
     adresse: { type: DataTypes.STRING, allowNull: false },
@@ -23,7 +23,7 @@ const Agence = sequelize.define('Agences', {
     email: { type: DataTypes.STRING, allowNull: false }
 });
 
-export const Vehicule = sequelize.define('Vehicules', {
+export const Vehicule = sequelize.define('Vehicule', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -82,7 +82,7 @@ app.post('/agences', async (req, res) => {
     
 });
 
-app.get('/', async (req, res) => {
+app.get('/agences', async (req, res) => {
     try {
         const agences = await Agence.findAll({ include: Vehicule });
         res.render('index', { agences });
@@ -109,10 +109,17 @@ app.get("/agences/:id", async (req, res) => {
   
 
 
-app.put('/agences/:id', async (req, res) => {
-    await Agence.update(req.body, { where: { id: req.params.id } });
-    res.json({ message: 'Agence mise à jour' });
+  app.put('/agences/:id', async (req, res) => {
+    console.log("Données reçues :", req.body); // DEBUG
+    const [updated] = await Agence.update(req.body, { where: { id: req.params.id } });
+
+    if (updated) {
+        res.json({ message: "Agence mise à jour avec succès" });
+    } else {
+        res.status(400).json({ message: "Mise à jour échouée" });
+    }
 });
+
 
 app.delete('/agences/:id', async (req, res) => {
     await Agence.destroy({ where: { id: req.params.id } });

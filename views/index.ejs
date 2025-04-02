@@ -33,6 +33,14 @@
       <form action="/agences/<%= agence.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Supprimer cette agence ?');">
         <button type="submit">🗑 Supprimer l'agence</button>
       </form>
+      <form action="/agences/<%= agence.id %>?_method=PUT" method="POST">
+        <input type="text" name="nom" placeholder="Nom" required value="<%= agence.nom %>">
+        <input type="text" name="adresse" placeholder="Adresse" required value="<%= agence.adresse %>">
+        <input type="text" name="telephone" placeholder="Téléphone" required value="<%= agence.telephone %>">
+        <input type="email" name="email" placeholder="Email" required value="<%= agence.email %>">
+        <button type="submit">Modifier l'agence</button>
+    </form>
+    
       <br>
       <h2><%= agence.nom %></h2>
       <p><strong>Adresse :</strong> <%= agence.adresse %></p>
