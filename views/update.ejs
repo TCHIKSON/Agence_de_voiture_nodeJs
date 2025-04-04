@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion Agences & Véhicules</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    .card { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem; border-radius: 6px; }
+    h2, h3 { margin-top: 0; }
+    form { margin-top: 1rem; }
+    button { padding: 0.4rem 1rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Liste des véhicules</h1>
+
+  <% if (vehicules.length > 0) { %>
+    <ul>
+      <% vehicules.forEach(v => { %>
+        <li class="card">
+          <h2><%= v.marque %> <%= v.modele %> - <%= v.immatriculation %></h2>
+          <p><strong>Année :</strong> <%= v.annee %></p>
+          <p><strong>Statut :</strong> <%= v.statut %></p>
+          <p><strong>Prix par jour :</strong> <%= v.prix_par_jour %> €</p>
+
+          <!-- Option pour supprimer un véhicule -->
+          <form action="/vehicules/<%= v.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Supprimer ce véhicule ?');">
+            <button type="submit">❌ Supprimer ce véhicule</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>Aucun véhicule enregistré.</p>
+  <% } %>
+
+  <br>
+  <a href="/">Retour à la liste des agences</a>
+</body>
+</html>
